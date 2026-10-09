@@ -706,6 +706,8 @@
     const PLAN_START_YEAR = 2026;
     const ITA_MONTHS = { 'Gen':0,'Feb':1,'Mar':2,'Apr':3,'Mag':4,'Giu':5,'Lug':6,'Ago':7,'Set':8,'Ott':9,'Nov':10,'Dic':11 };
     const CACHE_KEY = 'coach_simmons_cache_activities_v3';
+        // URL del Worker Cloudflare (backend proxy per Intervals + Gemini)
+    const WORKER_URL = 'https://coach-worker.coach-simmons.workers.dev';
 
     // ==================== STRUTTURA MESOCICLI DINAMICA ====================
     // Per AGGIUNGERE un nuovo mesociclo in futuro basta aggiungere una voce qui.
@@ -1814,10 +1816,10 @@
             const oldestDate = toLocalDateStr(new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000));
             const newestDate = toLocalDateStr(now);
 
-            const wellnessUrl = `https://intervals.icu/api/v1/athlete/${athleteId}/wellness?oldest=${oldestDate}&newest=${newestDate}`;
+                        const wellnessUrl = `${WORKER_URL}/intervals/wellness?athleteId=${athleteId}&oldest=${oldestDate}&newest=${newestDate}`;
             const response = await fetchWithRetry(wellnessUrl, {
                 method: 'GET',
-                headers: { 'Authorization': basicAuth, 'Accept': 'application/json' }
+                headers: { 'Accept': 'application/json' }
             });
 
             if (!response.ok) {
@@ -1858,19 +1860,10 @@
             }
 
             try {
-                const activitiesUrl = `https://intervals.icu/api/v1/athlete/${athleteId}/activities?oldest=${oldestDate}&newest=${newestDate}`;
+                            const activitiesUrl = `${WORKER_URL}/intervals/activities?athleteId=${athleteId}&oldest=${oldestDate}&newest=${newestDate}`;
                 const actResponse = await fetchWithRetry(activitiesUrl, {
-                    method: 'GET', headers: { 'Authorization': basicAuth, 'Accept': 'application/json' }
+                    method: 'GET', headers: { 'Accept': 'application/json' }
                 });
-                if (actResponse.ok) {
-                    const activities = await actResponse.json();
-                    if (Array.isArray(activities)) {
-                        matchExecutedActivities(activities);
-                        const sorted = activities.slice().sort((a, b) => {
-                            const da = a.start_date_local || '';
-                            const db = b.start_date_local || '';
-                            return da.localeCompare(db);
-                        });
                         const recent = sorted.slice(-60);
                         try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), activities: recent })); } catch(e){}
                         appState.settings.cachedActivities = recent;
@@ -2110,8 +2103,11 @@ Dati atleta:
 Il briefing deve: 1) riassumere lo stato attuale in 1 frase; 2) commentare la readiness; 3) dare un consiglio pratico per la seduta di oggi.`;
 
         try {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`;
-            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                    const apiUrl = `${WORKER_URL}/gemini/generate`;
+            const payload = {
+                model: 'gemini-3.5-flash-lite',
+                payload: { contents: [{ parts: [{ text: prompt }] }] }
+            };
             const res = await fetch(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
             const data = await res.json();
@@ -2329,11 +2325,14 @@ REGOLE FONDAMENTALI:
         const userPromptText = `Richiesta atleta: "${userMsg}"`;
 
         try {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${geminiKey}`;
+                    const apiUrl = `${WORKER_URL}/gemini/generate`;
             const payload = {
-                contents: [{ parts: [{ text: userPromptText }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
-                generationConfig: { responseMimeType: "application/json" }
+                model: 'gemini-3.5-flash-lite',
+                payload: {
+                    contents: [{ parts: [{ text: userPromptText }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                }
             };
             const response = await fetchWithRetry(apiUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
             if (!response.ok) throw new Error(`Gemini HTTP ${response.status}`);
