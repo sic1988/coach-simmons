@@ -4,7 +4,7 @@
    IMPORTANTE: incrementa CACHE_VERSION ad ogni aggiornamento dell'app!
    ============================================================ */
 
-const CACHE_VERSION = 'v3bis-1';
+const CACHE_VERSION = 'v3bis-2';
 const CACHE_NAME = `coach-simmons-${CACHE_VERSION}`;
 
 // File che vengono messi in cache al primo caricamento
