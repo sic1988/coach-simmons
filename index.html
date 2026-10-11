@@ -1859,11 +1859,20 @@
                 }
             }
 
-            try {
-                            const activitiesUrl = `${WORKER_URL}/intervals/activities?athleteId=${athleteId}&oldest=${oldestDate}&newest=${newestDate}`;
+                        try {
+                const activitiesUrl = `${WORKER_URL}/intervals/activities?athleteId=${athleteId}&oldest=${oldestDate}&newest=${newestDate}`;
                 const actResponse = await fetchWithRetry(activitiesUrl, {
                     method: 'GET', headers: { 'Accept': 'application/json' }
                 });
+                if (actResponse.ok) {
+                    const activities = await actResponse.json();
+                    if (Array.isArray(activities)) {
+                        matchExecutedActivities(activities);
+                        const sorted = activities.slice().sort((a, b) => {
+                            const da = a.start_date_local || '';
+                            const db = b.start_date_local || '';
+                            return da.localeCompare(db);
+                        });
                         const recent = sorted.slice(-60);
                         try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), activities: recent })); } catch(e){}
                         appState.settings.cachedActivities = recent;
