@@ -13,16 +13,16 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBase: '#070b14',
-                        surface: '#0f172a',
-                        surfaceCard: '#131e36',
-                        surfaceBorder: '#1e293b',
-                        brandCyan: '#06b6d4',
-                        brandBlue: '#3b82f6',
-                        brandEmerald: '#10b981',
-                        brandAmber: '#f59e0b',
-                        brandRose: '#f43f5e',
-                        brandPurple: '#a855f7'
+                        darkBase: '#0b0f19',
+                        surface: '#131b2e',
+                        surfaceCard: '#1a243b',
+                        surfaceBorder: '#273449',
+                        brandCyan: '#7ee0ff',
+                        brandBlue: '#9cb4ff',
+                        brandEmerald: '#69f0ae',
+                        brandAmber: '#ffd54f',
+                        brandRose: '#ffb4ab',
+                        brandPurple: '#d0bcff'
                     }
                 }
             }
@@ -35,25 +35,47 @@
     <meta name="theme-color" content="#06b6d4">
     <link rel="apple-touch-icon" href="./icon-192.png">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; }
         .font-mono-num { font-family: 'JetBrains Mono', monospace; }
-        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #070b14; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #334155; }
-        .readiness-ring { transition: stroke-dashoffset 0.8s ease; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0b0f19; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #273449; border-radius: 9999px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #3a4b66; }
+        .readiness-ring { transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .pulse-soft { animation: pulseSoft 2.4s ease-in-out infinite; }
         @keyframes pulseSoft { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .slide-in { animation: slideIn 0.35s ease-out; }
-        @keyframes slideIn { from { transform: translateY(-8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .diff-added { background: rgba(16,185,129,0.10); border-left: 3px solid #10b981; }
-        .diff-removed { background: rgba(244,63,94,0.10); border-left: 3px solid #f43f5e; text-decoration: line-through; opacity: 0.65; }
+        .slide-in { animation: slideIn 0.35s cubic-bezier(0.05, 0.7, 0.1, 1); }
+        @keyframes slideIn { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .diff-added { background: rgba(105,240,174,0.12); border-left: 3px solid #69f0ae; }
+        .diff-removed { background: rgba(255,180,171,0.12); border-left: 3px solid #ffb4ab; text-decoration: line-through; opacity: 0.65; }
         .timeline-bar { transition: filter 0.2s; cursor: pointer; }
-        .timeline-bar:hover { filter: brightness(1.35); }
+        .timeline-bar:hover { filter: brightness(1.25); }
         .tooltip-custom { position: absolute; z-index: 50; pointer-events: none; }
+
+        /* Material You 3 Tonal Surfaces & Elevation */
+        .m3-card {
+            background-color: #131b2e;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .m3-card-inner {
+            background-color: #1a243b;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+        }
+        .m3-pill-btn {
+            border-radius: 9999px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .m3-pill-btn:active {
+            transform: scale(0.96);
+        }
+
         @media (max-width: 768px) {
             .mobile-bottom-nav { display: flex; }
-            body { padding-bottom: 5rem; }
+            body { padding-bottom: 5.5rem; }
             .desktop-user-details { display: none !important; }
         }
         @media (min-width: 769px) {
@@ -140,7 +162,7 @@
         <section id="readinessSection" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
             <!-- Readiness Score -->
-            <div class="lg:col-span-4 bg-surface border border-surfaceBorder rounded-2xl p-5 shadow-xl">
+            <div class="lg:col-span-4 m3-card p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-brandCyan pulse-soft"></span>
@@ -200,7 +222,7 @@
             </div>
 
             <!-- Briefing del Giorno -->
-            <div class="lg:col-span-8 bg-gradient-to-br from-slate-900 via-surface to-surface border border-surfaceBorder rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+            <div class="lg:col-span-8 m3-card bg-gradient-to-br from-[#1a243b] via-[#131b2e] to-[#131b2e] p-6 shadow-xl flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
@@ -242,7 +264,7 @@
 
         <!-- ===================== CRUSCOTTO 6 PARAMETRI ===================== -->
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            <div class="bg-surface border border-surfaceBorder rounded-2xl p-4 shadow-xl">
+            <div class="m3-card p-4 shadow-lg">
                 <div class="flex justify-between items-start">
                     <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Fitness (CTL)</span>
                     <span id="ctlRampLabel" class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800 font-mono-num">--</span>
@@ -253,7 +275,7 @@
                 </div>
                 <div class="text-[11px] text-slate-400 font-mono-num" id="ctlSubtext">In attesa di sync</div>
             </div>
-            <div class="bg-surface border border-surfaceBorder rounded-2xl p-4 shadow-xl">
+            <div class="m3-card p-4 shadow-lg">
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Fatica (ATL)</span>
                 <div class="my-2">
                     <span id="valAtl" class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono-num">--</span>
@@ -261,7 +283,7 @@
                 </div>
                 <div class="text-[11px] text-slate-400 font-mono-num" id="atlSubtext">In attesa di sync</div>
             </div>
-            <div class="bg-surface border border-surfaceBorder rounded-2xl p-4 shadow-xl">
+            <div class="m3-card p-4 shadow-lg">
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Forma (TSB)</span>
                 <div class="my-2">
                     <span id="valTsb" class="text-2xl sm:text-3xl font-extrabold text-brandEmerald font-mono-num">--</span>
@@ -269,7 +291,7 @@
                 </div>
                 <div class="text-[11px] font-bold text-slate-400" id="tsbSubtext">Neutral</div>
             </div>
-            <div class="bg-surface border border-surfaceBorder rounded-2xl p-4 shadow-xl">
+            <div class="m3-card p-4 shadow-lg">
                 <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5"><span>🌙 Sonno</span></span>
                 <div class="my-2">
                     <span id="valSleep" class="text-2xl sm:text-3xl font-extrabold text-indigo-300 font-mono-num">--</span>
@@ -277,7 +299,7 @@
                 </div>
                 <div class="text-[11px] text-slate-400 truncate" id="sleepSubtext">Da Garmin</div>
             </div>
-            <div class="bg-surface border border-surfaceBorder rounded-2xl p-4 shadow-xl">
+            <div class="m3-card p-4 shadow-lg">
                 <div class="flex justify-between items-start">
                     <span class="text-[11px] font-bold uppercase tracking-wider text-rose-400">HRV &amp; RHR</span>
                     <span id="hrvStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
@@ -306,7 +328,7 @@
         </section>
 
         <!-- ===================== ZONE COGGAN ===================== -->
-        <section class="bg-surface border border-surfaceBorder rounded-2xl p-4 sm:p-5 shadow-xl">
+        <section class="m3-card p-5 sm:p-6 shadow-xl">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 mb-3 border-b border-surfaceBorder gap-2">
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-extrabold uppercase tracking-wider text-slate-300">⚡ Zone di Potenza Coggan</span>
@@ -325,7 +347,7 @@
                 </div>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 text-center">
+                <div class="m3-card-inner p-3.5 text-center">
                     <span class="text-[10px] font-bold uppercase text-slate-400">Z1 - Recupero</span>
                     <div id="z1Val" class="text-base sm:text-lg font-black text-slate-300 mt-1 font-mono-num">&lt; 151 W</div>
                     <div class="text-[10px] font-mono-num text-slate-500 mt-0.5" id="z1Wkg">&lt; 2.07 W/kg</div>
@@ -354,7 +376,7 @@
         </section>
 
         <!-- ===================== TIMELINE VISUALE ===================== -->
-        <section class="bg-surface border border-surfaceBorder rounded-2xl p-5 shadow-xl">
+        <section class="m3-card p-6 shadow-xl">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 mb-3 border-b border-surfaceBorder gap-2">
                 <div>
                     <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-300">📊 Timeline Settimanale</h2>
@@ -373,7 +395,7 @@
         </section>
 
         <!-- ===================== SELEZIONE MESOCICLO E PROGRAMMA ===================== -->
-        <section class="bg-surface border border-surfaceBorder rounded-2xl p-4 sm:p-5 shadow-xl">
+        <section class="m3-card p-5 sm:p-6 shadow-xl">
             <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-surfaceBorder">
                 <div>
                     <div class="flex items-center gap-2">
@@ -393,7 +415,7 @@
         </section>
 
         <!-- ===================== PROGRAMMA SETTIMANALE ===================== -->
-        <section id="programSection" class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
+        <section id="programSection" class="m3-card p-6 sm:p-7 shadow-2xl">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-surfaceBorder gap-3">
                 <div>
                     <div class="flex items-center gap-2.5">
@@ -411,7 +433,7 @@
 
         <!-- ===================== GRAFICI ===================== -->
         <section id="analyticsSection" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-6 bg-surface border border-surfaceBorder rounded-3xl p-5 shadow-2xl flex flex-col justify-between space-y-5">
+            <div class="lg:col-span-6 m3-card p-6 shadow-2xl flex flex-col justify-between space-y-5">
                 <div>
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
                         <div>
@@ -437,18 +459,18 @@
             <!-- Predizioni + Analisi Endurance -->
             <div class="lg:col-span-6 space-y-5">
                 <!-- Predizioni -->
-                <div class="bg-surface border border-surfaceBorder rounded-3xl p-5 shadow-2xl">
+                <div class="m3-card p-6 shadow-2xl">
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">🔮 Predizioni</h3>
                         <button onclick="toggleModal('predictionConfigModal')" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300">⚙️ Configura GF</button>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                        <div class="m3-card-inner p-3.5">
                             <span class="text-[10px] font-bold uppercase text-slate-400">FTP Previsto (4 sett.)</span>
                             <div id="predFtp" class="text-2xl font-black text-cyan-300 mt-1 font-mono-num">-- W</div>
                             <div id="predFtpDelta" class="text-[10px] font-mono-num text-slate-500 mt-0.5">--</div>
                         </div>
-                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                        <div class="m3-card-inner p-3.5">
                             <span class="text-[10px] font-bold uppercase text-slate-400">Tempo GF Stimato</span>
                             <div id="predGfTime" class="text-2xl font-black text-emerald-300 mt-1 font-mono-num">--</div>
                             <div id="predGfDetail" class="text-[10px] font-mono-num text-slate-500 mt-0.5">--</div>
@@ -458,7 +480,7 @@
                 </div>
 
                 <!-- Analisi Endurance -->
-                <div class="bg-surface border border-surfaceBorder rounded-3xl p-5 shadow-2xl">
+                <div class="m3-card p-6 shadow-2xl">
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
                         <h3 class="text-sm font-bold text-white uppercase tracking-wider">❤️ Analisi Endurance (Decoupling)</h3>
                         <span class="text-[10px] text-slate-500">Uscite &gt; 90min ultimi 30gg</span>
@@ -471,7 +493,7 @@
         </section>
 
         <!-- ===================== CHAT COACH ===================== -->
-        <section id="chatSection" class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
+        <section id="chatSection" class="m3-card p-6 sm:p-7 shadow-2xl">
             <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brandCyan to-brandPurple flex items-center justify-center text-white shadow-md">
@@ -678,23 +700,23 @@
         </div>
     </div>
 
-    <!-- ===================== MOBILE BOTTOM NAV BAR ===================== -->
-    <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-t border-surfaceBorder px-4 py-2.5 items-center justify-around shadow-2xl">
-        <button onclick="scrollToSection('readinessSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span class="text-[10px] font-bold">Stato</span>
+    <!-- ===================== MOBILE BOTTOM NAV BAR (Material You 3) ===================== -->
+    <nav class="mobile-bottom-nav fixed bottom-3 left-4 right-4 z-50 bg-[#131b2e]/95 backdrop-blur-xl border border-white/10 rounded-full px-3 py-2 items-center justify-around shadow-2xl">
+        <button onclick="scrollToSection('readinessSection')" class="m3-pill-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-white/5 text-slate-400 hover:text-brandCyan transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="text-xs font-bold">Stato</span>
         </button>
-        <button onclick="scrollToSection('programSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span class="text-[10px] font-bold">Piano</span>
+        <button onclick="scrollToSection('programSection')" class="m3-pill-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-white/5 text-slate-400 hover:text-brandCyan transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="text-xs font-bold">Piano</span>
         </button>
-        <button onclick="scrollToSection('analyticsSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            <span class="text-[10px] font-bold">Analisi</span>
+        <button onclick="scrollToSection('analyticsSection')" class="m3-pill-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-white/5 text-slate-400 hover:text-brandCyan transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="text-xs font-bold">Analisi</span>
         </button>
-        <button onclick="scrollToSection('chatSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-            <span class="text-[10px] font-bold">Coach</span>
+        <button onclick="scrollToSection('chatSection')" class="m3-pill-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-white/5 text-slate-400 hover:text-brandCyan transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            <span class="text-xs font-bold">Coach</span>
         </button>
     </nav>
 
