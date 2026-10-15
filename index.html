@@ -691,9 +691,6 @@
         </div>
     </div>
 
-</body>
-</html>
-
     <script>
     /* ============================================================
        COACH SIMMONS v3 — Virtual Coach Gran Fondo
@@ -706,8 +703,11 @@
     const PLAN_START_YEAR = 2026;
     const ITA_MONTHS = { 'Gen':0,'Feb':1,'Mar':2,'Apr':3,'Mag':4,'Giu':5,'Lug':6,'Ago':7,'Set':8,'Ott':9,'Nov':10,'Dic':11 };
     const CACHE_KEY = 'coach_simmons_cache_activities_v3';
-        // URL del Worker Cloudflare (backend proxy per Intervals + Gemini)
+    // URL del Worker Cloudflare (backend proxy per Intervals + Gemini + State D1)
     const WORKER_URL = 'https://coach-worker.coach-simmons.workers.dev';
+    const STATE_ENDPOINT = `${WORKER_URL}/state`;
+    const STATE_TOKEN = '7d82a745-e52e-4e4d-a6d2-d6b8b87b0c34c2e6b632-e7ca-4b66-a6dc-b2ffeb05f1b5';
+    const STATE_USER_ID = 'default';
 
     // ==================== STRUTTURA MESOCICLI DINAMICA ====================
     // Per AGGIUNGERE un nuovo mesociclo in futuro basta aggiungere una voce qui.
@@ -992,31 +992,115 @@
         } catch(e) { console.warn('Migrazione fallita:', e); return false; }
     }
 
-    // ==================== PERSISTENZA ====================
-    function saveAppState() {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-        } catch(e) { console.warn('save error:', e); }
+    // ==================== PERSISTENZA (LOCAL + CLOUD D1) ====================
+    let _isBootstrapping = false;
+    let _cloudSaveTimer = null;
+
+    function applyParsedState(parsed) {
+        if (!parsed || typeof parsed !== 'object') return false;
+        appState = Object.assign(createFreshState(), parsed);
+        appState.athlete = Object.assign({ ftp:275, weight:73, height:183 }, parsed.athlete || {});
+        appState.biometrics = Object.assign(createFreshState().biometrics, parsed.biometrics || {});
+        appState.readiness = Object.assign(createFreshState().readiness, parsed.readiness || {});
+        appState.coachMemory = Object.assign(createFreshState().coachMemory, parsed.coachMemory || {});
+        appState.sync = Object.assign(createFreshState().sync, parsed.sync || {});
+        appState.sync.credentials = Object.assign(createFreshState().sync.credentials, (parsed.sync && parsed.sync.credentials) || {});
+        appState.settings = Object.assign(createFreshState().settings, parsed.settings || {});
+        if (parsed.plan) appState.plan = parsed.plan;
+        return true;
     }
 
-    function loadState() {
+    function saveAppState(skipRemote = false) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch(e) { console.warn('local save error:', e); }
+
+        if (skipRemote || _isBootstrapping) return;
+
+        // Debounce 400ms per raggruppare salvataggi ravvicinati e non saturare il Worker
+        if (_cloudSaveTimer) clearTimeout(_cloudSaveTimer);
+        _cloudSaveTimer = setTimeout(() => {
+            saveStateToCloud();
+        }, 400);
+    }
+
+    async function saveStateToCloud() {
+        if (!STATE_ENDPOINT || !STATE_TOKEN) return false;
+        try {
+            const res = await fetch(`${STATE_ENDPOINT}/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${STATE_TOKEN}`
+                },
+                body: JSON.stringify({
+                    userId: STATE_USER_ID,
+                    state: appState
+                })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            logDebug(`Cloud D1 salvato (${(data.size_bytes / 1024).toFixed(1)} KB)`, 'ok');
+            return true;
+        } catch(e) {
+            console.warn('Cloud save error:', e);
+            logDebug(`Salvataggio Cloud fallito (usato fallback locale): ${e.message}`, 'warn');
+            return false;
+        }
+    }
+
+    function loadLocalStateSync() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 const parsed = JSON.parse(saved);
-                appState = Object.assign(createFreshState(), parsed);
-                appState.athlete = Object.assign({ ftp:275, weight:73, height:183 }, parsed.athlete || {});
-                appState.biometrics = Object.assign(createFreshState().biometrics, parsed.biometrics || {});
-                appState.readiness = Object.assign(createFreshState().readiness, parsed.readiness || {});
-                appState.coachMemory = Object.assign(createFreshState().coachMemory, parsed.coachMemory || {});
-                appState.sync = Object.assign(createFreshState().sync, parsed.sync || {});
-                appState.sync.credentials = Object.assign(createFreshState().sync.credentials, (parsed.sync && parsed.sync.credentials) || {});
-                appState.settings = Object.assign(createFreshState().settings, parsed.settings || {});
-                if (parsed.plan) appState.plan = parsed.plan;
-                return true;
+                if (parsed && parsed.athlete) {
+                    applyParsedState(parsed);
+                    return true;
+                }
             }
-        } catch(e) { console.warn('load error:', e); }
+        } catch(e) { console.warn('local load error:', e); }
         return migrateLegacyState();
+    }
+
+    async function loadState() {
+        // 1. Carica subito da localStorage per un avvio istantaneo dell'interfaccia
+        const hadLocal = loadLocalStateSync();
+
+        // 2. Sincronizza con il database Cloud D1
+        if (!STATE_ENDPOINT || !STATE_TOKEN) return hadLocal;
+
+        try {
+            const res = await fetch(`${STATE_ENDPOINT}/load?userId=${encodeURIComponent(STATE_USER_ID)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${STATE_TOKEN}`
+                }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+
+            // Verifica che lo stato sul DB sia un appState reale (e non il {test:"funziona"} di prova)
+            const isValidCloudState = data.status === 'ok' && data.state && typeof data.state === 'object' && data.state.athlete && data.state.plan;
+
+            if (isValidCloudState) {
+                applyParsedState(data.state);
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e){}
+                logDebug(`Stato caricato da Cloud D1 (aggiornato: ${data.saved_at ? new Date(data.saved_at).toLocaleTimeString('it-IT') : 'ok'})`, 'ok');
+                return true;
+            } else {
+                // Primo avvio assoluto sul DB (oppure DB contiene solo il test della Sessione 1):
+                // carica lo stato di questo dispositivo sul Cloud come stato ufficiale!
+                logDebug('Cloud D1 vuoto o di test: migrazione stato locale verso Cloud D1...', 'info');
+                await saveStateToCloud();
+                return hadLocal;
+            }
+        } catch(e) {
+            console.warn('Cloud load error:', e);
+            logDebug(`Caricamento Cloud non riuscito (uso copia locale): ${e.message}`, 'warn');
+            return hadLocal;
+        }
     }
 
     // ==================== LOG DEBUG ====================
@@ -1096,9 +1180,9 @@
         const el = document.getElementById('accountStatusText');
         if (!el) return;
         const creds = appState.sync.credentials;
-        if (creds.apiKey) {
-            const idDisplay = creds.athleteId || '0 (Self)';
-            el.innerText = `Configurato (${idDisplay})`;
+        if (appState.sync.lastSync || creds.apiKey || WORKER_URL) {
+            const idDisplay = creds.athleteId || '0 (Cloud)';
+            el.innerText = appState.sync.lastSync ? `Sincronizzato (${idDisplay})` : `Cloud Attivo (${idDisplay})`;
             el.className = 'font-bold text-cyan-400 font-mono-num';
         } else {
             el.innerText = 'Non Sincronizzato';
@@ -1796,7 +1880,7 @@
         const apiKey = (creds.apiKey || '').trim();
         const athleteId = (creds.athleteId || '').trim() || '0';
 
-        if (!apiKey) {
+        if (!apiKey && !WORKER_URL) {
             if (!isBackground) {
                 showDiagnostic('Credenziali Mancanti', 'Nessuna API Key inserita.',
                     'Apri "Impostazioni" e inserisci la tua API Key generata in Intervals.icu (Settings > Developer > API Access).', 'warning');
@@ -1859,7 +1943,7 @@
                 }
             }
 
-                        try {
+            try {
                 const activitiesUrl = `${WORKER_URL}/intervals/activities?athleteId=${athleteId}&oldest=${oldestDate}&newest=${newestDate}`;
                 const actResponse = await fetchWithRetry(activitiesUrl, {
                     method: 'GET', headers: { 'Accept': 'application/json' }
@@ -2069,7 +2153,7 @@
     async function maybeGenerateBriefing(force = false) {
         const today = todayLocalStr();
         const geminiKey = appState.sync.credentials.geminiApiKey;
-        if (!geminiKey) return;
+        if (!geminiKey && !WORKER_URL) return;
         if (!force && appState.settings.briefingDismissedDate === today && appState.settings.briefingContent) {
             renderBriefing();
             return;
@@ -2083,7 +2167,7 @@
         const content = document.getElementById('briefingContent');
         const today = todayLocalStr();
 
-        if (!geminiKey) {
+        if (!geminiKey && !WORKER_URL) {
             content.innerHTML = '<span class="text-amber-300 text-xs">⚠️ Configura la Gemini API Key in Impostazioni per il briefing automatico.</span>';
             return;
         }
@@ -2283,7 +2367,7 @@ Il briefing deve: 1) riassumere lo stato attuale in 1 frase; 2) commentare la re
         const currentPlan = appState.plan[activeWeekNum];
         const geminiKey = appState.sync.credentials.geminiApiKey;
 
-        if (!geminiKey) {
+        if (!geminiKey && !WORKER_URL) {
             appendChatBubble('coach', 'Non ho la chiave Gemini configurata. Vai in Impostazioni → Google Gemini API Key e incollala, poi riprova. Senza di essa non posso rispondere in modo intelligente.');
             statusPill.innerText = 'Config. mancante';
             statusPill.className = 'text-[10px] font-mono-num text-rose-400 bg-rose-950/60 border border-rose-800/80 px-2 py-0.5 rounded-full';
@@ -2613,7 +2697,7 @@ REGOLE FONDAMENTALI:
         renderAutoRegBanner();
         computePredictions();
         saveAppState();
-        if (appState.sync.credentials.apiKey) syncIntervalsRealApi();
+        if (appState.sync.credentials.apiKey || WORKER_URL) syncIntervalsRealApi();
     }
 
     function hardResetCleanState() {
@@ -2695,35 +2779,51 @@ REGOLE FONDAMENTALI:
     }
 
     // ==================== INIT ====================
-    document.addEventListener('DOMContentLoaded', () => {
-        loadState();
-        const savedPhoto = localStorage.getItem('user_bike_photo_base64');
-        if (savedPhoto) applyPhoto(savedPhoto);
-
-        document.getElementById('todayDateBadge').textContent = new Date().toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'short', year:'numeric' });
-
+    function refreshAllUI() {
         updateAccountStatusBadge();
         calculateCogganZones();
-        initCharts();
         populateMesoSelect();
-        renderWeekButtons(1);
-        selectMesocycleWeek(appState.settings.activeMesoWeek || 1);
+        const activeWeek = appState.settings.activeMesoWeek || 1;
+        renderWeekButtons(mesoOfWeek(activeWeek));
+        _isBootstrapping = true;
+        selectMesocycleWeek(activeWeek);
+        _isBootstrapping = false;
         updateMetricBoxes();
+        updateFitnessChart();
         renderReadiness();
         renderAutoRegBanner();
         renderBriefing();
         renderDecouplingAnalysis();
         computePredictions();
         renderDebugLog();
+    }
 
+    document.addEventListener('DOMContentLoaded', async () => {
+        _isBootstrapping = true;
+        loadLocalStateSync();
+        const savedPhoto = localStorage.getItem('user_bike_photo_base64');
+        if (savedPhoto) applyPhoto(savedPhoto);
+
+        document.getElementById('todayDateBadge').textContent = new Date().toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'short', year:'numeric' });
+
+        initCharts();
+        refreshAllUI();
+        _isBootstrapping = false;
+
+        // Sincronizza lo stato dal database D1 su Cloudflare
+        await loadState();
+        refreshAllUI();
+
+        const chatBox = document.getElementById('chatMessagesBox');
+        if (chatBox) chatBox.innerHTML = '';
         appendChatBubble('coach', `Ciao! Sono Coach Simmons. Oggi è ${new Date().toLocaleDateString('it-IT',{weekday:'long', day:'numeric', month:'long'})}. La tua Readiness di oggi è ${appState.readiness.today ? appState.readiness.today.score + '/100' : 'in attesa di sync'}. Scrivimi se piove, se sei stanco o vuoi spostare una seduta — ti proporrò le modifiche e le applicherò solo dopo la tua conferma.`);
 
-        if (appState.sync.credentials.apiKey) {
+        if (appState.sync.credentials.apiKey || WORKER_URL) {
             syncIntervalsRealApi(true);
         } else {
             logDebug('App inizializzata senza credenziali API', 'info');
         }
-        });
+    });
 
     // ==================== REGISTRAZIONE SERVICE WORKER (PWA) ====================
     if ('serviceWorker' in navigator) {
