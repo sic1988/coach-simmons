@@ -51,6 +51,14 @@
         .timeline-bar { transition: filter 0.2s; cursor: pointer; }
         .timeline-bar:hover { filter: brightness(1.35); }
         .tooltip-custom { position: absolute; z-index: 50; pointer-events: none; }
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 5rem; }
+            .desktop-user-details { display: none !important; }
+        }
+        @media (min-width: 769px) {
+            .mobile-bottom-nav { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-darkBase text-slate-100 min-h-screen antialiased selection:bg-brandCyan selection:text-slate-950 pb-16 custom-scroll">
@@ -79,7 +87,7 @@
                         <span id="mesocycleBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Settimana 1: Costruzione</span>
                         <span id="todayDateBadge" class="text-[10px] font-mono-num px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">--</span>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400 font-medium mt-0.5">
+                    <div class="desktop-user-details flex flex-wrap items-center gap-2 text-xs text-slate-400 font-medium mt-0.5">
                         <span>183 cm</span> &bull; 
                         <span><strong id="headerWeight" class="text-slate-200">73</strong> kg</span> &bull; 
                         <span>FTP: <strong id="headerFtp" class="text-brandCyan font-mono-num font-bold">275</strong> W</span> &bull; 
@@ -129,7 +137,7 @@
     <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
         <!-- ===================== ROW 1: READINESS + BRIEFING ===================== -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <section id="readinessSection" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
             
             <!-- Readiness Score -->
             <div class="lg:col-span-4 bg-surface border border-surfaceBorder rounded-2xl p-5 shadow-xl">
@@ -385,7 +393,7 @@
         </section>
 
         <!-- ===================== PROGRAMMA SETTIMANALE ===================== -->
-        <section class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
+        <section id="programSection" class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-surfaceBorder gap-3">
                 <div>
                     <div class="flex items-center gap-2.5">
@@ -402,7 +410,7 @@
         </section>
 
         <!-- ===================== GRAFICI ===================== -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section id="analyticsSection" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-6 bg-surface border border-surfaceBorder rounded-3xl p-5 shadow-2xl flex flex-col justify-between space-y-5">
                 <div>
                     <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
@@ -463,7 +471,7 @@
         </section>
 
         <!-- ===================== CHAT COACH ===================== -->
-        <section class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
+        <section id="chatSection" class="bg-surface border border-surfaceBorder rounded-3xl p-5 sm:p-6 shadow-2xl">
             <div class="flex items-center justify-between pb-3 mb-3 border-b border-surfaceBorder/80">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brandCyan to-brandPurple flex items-center justify-center text-white shadow-md">
@@ -670,6 +678,26 @@
         </div>
     </div>
 
+    <!-- ===================== MOBILE BOTTOM NAV BAR ===================== -->
+    <nav class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-md border-t border-surfaceBorder px-4 py-2.5 items-center justify-around shadow-2xl">
+        <button onclick="scrollToSection('readinessSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="text-[10px] font-bold">Stato</span>
+        </button>
+        <button onclick="scrollToSection('programSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="text-[10px] font-bold">Piano</span>
+        </button>
+        <button onclick="scrollToSection('analyticsSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="text-[10px] font-bold">Analisi</span>
+        </button>
+        <button onclick="scrollToSection('chatSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            <span class="text-[10px] font-bold">Coach</span>
+        </button>
+    </nav>
+
     <!-- ===================== MODALE: FOTO ===================== -->
     <div id="photoModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4" onclick="toggleModal('photoModal')">
         <div class="bg-surface border border-slate-700 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -692,6 +720,30 @@
     </div>
 
     <script>
+    /* ============================================================
+       COACH SIMMONS v3 — Virtual Coach Gran Fondo
+       Mesocicli dinamici (MESOCYCLES array), piano allineato al CSV
+       ============================================================ */
+
+    // ==================== MOBILE & RESPONSIVE UI HELPERS ====================
+    function scrollToSection(sectionId) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function toggleDayCardAccordion(index) {
+        const cardBody = document.getElementById(`dayCardBody_${index}`);
+        const icon = document.getElementById(`dayCardChevron_${index}`);
+        if (cardBody) {
+            cardBody.classList.toggle('hidden');
+            if (icon) {
+                icon.style.transform = cardBody.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+        }
+    }
+
     /* ============================================================
        COACH SIMMONS v3 — Virtual Coach Gran Fondo
        Mesocicli dinamici (MESOCYCLES array), piano allineato al CSV
@@ -1728,63 +1780,82 @@
             outdoor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
         };
 
+        const todayDow = (new Date().getDay() + 6) % 7; // 0=Lun ... 6=Dom
+
         weekData.days.forEach((day, index) => {
             const executed = day.executed;
             const isExecuted = executed !== null && executed !== undefined;
             if (isExecuted) actualTssSum += (executed.tss || 0);
 
+            const isToday = (index === todayDow);
+            const bodyClass = isToday ? '' : 'hidden lg:block';
+            const chevronRotation = isToday ? 'rotate-180' : 'rotate-0';
+
             html += `
-                <div class="rounded-2xl bg-surfaceCard border border-surfaceBorder hover:border-slate-700 p-4 transition-all shadow-sm">
-                    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                                <span class="font-extrabold text-white text-base">${day.dayName}</span>
-                                <span class="text-xs font-mono-num text-slate-400">(${day.date})</span>
-                                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badgeStyles[day.type] || badgeStyles.recovery}">${(day.type || '').toUpperCase()}</span>
-                                ${isExecuted ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ Completato</span>` : `<span class="text-[10px] text-slate-500">Pianificato</span>`}
-                            </div>
-                            <h3 class="text-sm font-bold text-slate-200 mb-1">${day.title}</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed">${day.desc}</p>
-                            <div class="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-mono-num text-slate-400">
-                                <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-brandCyan">⏱️ ${day.duration}</span>
-                                <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-purple-300">⚡ ${day.plannedTss} TSS</span>
-                                <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-emerald-300">🎯 ${day.wattsTarget}</span>
-                                ${day.rpm ? `<span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-cyan-300">🔄 ${day.rpm}</span>` : ''}
-                                ${day.cho ? `<span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-amber-300">🍌 ${day.cho}</span>` : ''}
-                            </div>
+                <div class="rounded-2xl bg-surfaceCard border ${isToday ? 'border-cyan-500/50' : 'border-surfaceBorder'} hover:border-slate-700 p-4 transition-all shadow-sm">
+                    <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleDayCardAccordion(${index})">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-extrabold text-white text-base">${day.dayName}</span>
+                            <span class="text-xs font-mono-num text-slate-400">(${day.date})</span>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badgeStyles[day.type] || badgeStyles.recovery}">${(day.type || '').toUpperCase()}</span>
+                            ${isToday ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">★ Oggi</span>` : ''}
+                            ${isExecuted ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">✓ Fatto</span>` : ''}
                         </div>
-                        <div class="w-full lg:w-80 shrink-0">
-                            ${isExecuted ? (() => {
-                                const discBorder = { ok: 'border-emerald-900/50', moderato: 'border-amber-700/60', importante: 'border-rose-700/60' };
-                                const discBadge = {
-                                    ok: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
-                                    moderato: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
-                                    importante: 'bg-rose-500/15 text-rose-300 border-rose-500/40'
-                                };
-                                const discLabel = { ok: 'In linea', moderato: 'Scost. moderato', importante: 'Scost. importante' };
-                                const lvl = executed.discrepancyLevel || 'ok';
-                                return `
-                                <div class="rounded-xl bg-slate-950/80 border ${discBorder[lvl]} p-3">
-                                    <div class="flex items-center justify-between text-[11px] mb-1.5">
-                                        <span class="text-emerald-400 font-bold">Attività Registrata</span>
-                                        <span class="font-mono-num font-bold text-purple-300">${executed.tss} TSS <span class="text-slate-500">/ ${day.plannedTss}</span></span>
-                                    </div>
-                                    <div class="text-xs font-bold text-white truncate mb-1.5">${escapeHtml(executed.name)}</div>
-                                    <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono-num mb-1.5">
-                                        <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">Tempo</span>${executed.time}</div>
-                                        <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">Avg W</span>${executed.avgPower}W</div>
-                                        <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">NP</span>${executed.np}W</div>
-                                    </div>
-                                    <div class="flex items-start gap-1.5">
-                                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${discBadge[lvl]}">${discLabel[lvl]}</span>
-                                        <span class="text-[10px] text-slate-400 leading-snug">${escapeHtml(executed.discrepancyNote || '')}</span>
-                                    </div>
-                                </div>`;
-                            })() : `
-                                <div class="rounded-xl border border-dashed border-slate-800 p-3 text-center bg-slate-950/40">
-                                    <span class="text-xs text-slate-400 block font-medium">In attesa di registrazione</span>
-                                    <span class="text-[10px] text-slate-500">Comparirà automaticamente al sync</span>
-                                </div>`}
+                        <div class="flex items-center gap-3">
+                            <div class="text-right text-xs font-mono-num hidden sm:block">
+                                <span class="text-cyan-400 font-bold">${day.plannedTss} TSS</span>
+                                <span class="text-slate-400 ml-2">⏱️ ${day.duration}</span>
+                            </div>
+                            <svg id="dayCardChevron_${index}" class="w-5 h-5 text-slate-400 transform transition-transform duration-300 ${chevronRotation} lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </div>
+                    </div>
+
+                    <div id="dayCardBody_${index}" class="${bodyClass} mt-4 pt-4 border-t border-surfaceBorder/80">
+                        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-sm font-bold text-slate-200 mb-1">${day.title}</h3>
+                                <p class="text-xs text-slate-400 leading-relaxed">${day.desc}</p>
+                                <div class="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-mono-num text-slate-400">
+                                    <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-brandCyan">⏱️ ${day.duration}</span>
+                                    <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-purple-300">⚡ ${day.plannedTss} TSS</span>
+                                    <span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-emerald-300">🎯 ${day.wattsTarget}</span>
+                                    ${day.rpm ? `<span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-cyan-300">🔄 ${day.rpm}</span>` : ''}
+                                    ${day.cho ? `<span class="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-amber-300">🍌 ${day.cho}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="w-full lg:w-80 shrink-0">
+                                ${isExecuted ? (() => {
+                                    const discBorder = { ok: 'border-emerald-900/50', moderato: 'border-amber-700/60', importante: 'border-rose-700/60' };
+                                    const discBadge = {
+                                        ok: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+                                        moderato: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+                                        importante: 'bg-rose-500/15 text-rose-300 border-rose-500/40'
+                                    };
+                                    const discLabel = { ok: 'In linea', moderato: 'Scost. moderato', importante: 'Scost. importante' };
+                                    const lvl = executed.discrepancyLevel || 'ok';
+                                    return `
+                                    <div class="rounded-xl bg-slate-950/80 border ${discBorder[lvl]} p-3">
+                                        <div class="flex items-center justify-between text-[11px] mb-1.5">
+                                            <span class="text-emerald-400 font-bold">Attività Registrata</span>
+                                            <span class="font-mono-num font-bold text-purple-300">${executed.tss} TSS <span class="text-slate-500">/ ${day.plannedTss}</span></span>
+                                        </div>
+                                        <div class="text-xs font-bold text-white truncate mb-1.5">${escapeHtml(executed.name)}</div>
+                                        <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] font-mono-num mb-1.5">
+                                            <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">Tempo</span>${executed.time}</div>
+                                            <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">Avg W</span>${executed.avgPower}W</div>
+                                            <div class="bg-slate-900 p-1 rounded"><span class="text-slate-500 block">NP</span>${executed.np}W</div>
+                                        </div>
+                                        <div class="flex items-start gap-1.5">
+                                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${discBadge[lvl]}">${discLabel[lvl]}</span>
+                                            <span class="text-[10px] text-slate-400 leading-snug">${escapeHtml(executed.discrepancyNote || '')}</span>
+                                        </div>
+                                    </div>`;
+                                })() : `
+                                    <div class="rounded-xl border border-dashed border-slate-800 p-3 text-center bg-slate-950/40">
+                                        <span class="text-xs text-slate-400 block font-medium">In attesa di registrazione</span>
+                                        <span class="text-[10px] text-slate-500">Comparirà automaticamente al sync</span>
+                                    </div>`}
+                            </div>
                         </div>
                     </div>
                 </div>`;
